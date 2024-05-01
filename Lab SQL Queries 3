@@ -1,0 +1,71 @@
+-- Lab | SQL Queries 3
+-- In this lab, you will be using the Sakila database of movie rentals. 
+-- You have been using this database for a couple labs already, but if you need to get the data again, refer to the official installation link.
+-- The database is structured as follows:
+-- Instructions:
+USE sakila;
+
+-- 1. How many distinct (different) actors' last names are there?
+SELECT 
+	COUNT(DISTINCT last_name) AS unique_actors
+FROM 
+	sakila.actor;
+    
+-- 2. In how many different languages where the films originally produced? (Use the column language_id from the film table)
+SELECT 
+	COUNT(DISTINCT language_id) AS distinct_languages
+FROM 
+	sakila.film;
+    
+-- 3. How many movies were released with "PG-13" rating?
+SELECT 
+	COUNT(*) AS rate_PG_13
+FROM 
+	sakila.film
+WHERE rating="PG-13";
+
+-- 4. Get 10 the longest movies from 2006.
+SELECT 
+  title, length
+FROM 
+  sakila.film
+WHERE 
+  release_year = 2006
+ORDER BY 
+  length DESC
+LIMIT 10;
+
+-- 5. How many days has been the company operating (check DATEDIFF() function)?
+SELECT DATEDIFF(MAX(rental_date), MIN(rental_date)) AS dias_abierto
+FROM sakila.rental;
+
+-- 6. Show rental info with additional columns month and weekday. Get 20.
+SELECT 
+	*,
+  MONTH(rental_date) AS mes, 
+  DAYNAME(rental_date) AS dia_de_la_semana
+FROM 
+  sakila.rental
+LIMIT 20;
+
+
+-- 7. Add an additional column day_type with values 'weekend' and 'workday' depending on the rental day of the week.
+SELECT 
+	*,
+  MONTH(rental_date) AS mes, 
+  DAYNAME(rental_date) AS dia_de_la_semana,
+	CASE 
+		WHEN DAYNAME(rental_date) IN ("Saturday", "Sunday") THEN "weekend" 
+        ELSE "week-day" 
+	END AS day_type
+FROM 
+  sakila.rental;
+  
+ -- 8. How many rentals were in the last month of activity?    
+SELECT 
+    COUNT(*) AS rentals_last_month
+FROM 
+    sakila.rental
+WHERE 
+    rental_date >= (SELECT DATE_SUB(LAST_DAY(MAX(rental_date)), INTERVAL 1 MONTH) + INTERVAL 1 DAY FROM sakila.rental)
+    AND rental_date < (SELECT LAST_DAY(MAX(rental_date)) + INTERVAL 1 DAY FROM sakila.rental);
